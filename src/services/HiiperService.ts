@@ -1,11 +1,12 @@
 const req = require("request");
 import config from "../config/config";
+import { Length } from 'class-validator';
 
 class HiiperService {
   private email: string;
   private password: string;
-  private headers : object;
-  private authenticationUri : string;
+  private headers: object;
+  private authenticationUri: string;
 
   constructor() {
     this.email = config.hiiperEmail;
@@ -14,20 +15,21 @@ class HiiperService {
     this.authenticationUri = "https://api.hiiper.nl/authenticate"
   }
 
-  private SetupSession(): any {
+  private SetupSessionAsync(): any {
     //This will store the cookie
     const cookie = req.jar();
     return new Promise((resolve, reject): void => {
       req.post(
         this.authenticationUri,
-        { jar: cookie,
+        {
+          jar: cookie,
           json: {
             message: {
               email: this.email,
               password: this.password
             }
           },
-          headers : this.headers
+          headers: this.headers
         },
         function (error, response): void {
           if (!error && response.statusCode == 200) {
@@ -42,12 +44,33 @@ class HiiperService {
     });
   }
 
-  public async RequestProducts() {
-    const cookie = await this.SetupSession();
-    req.get("https://api.hiiper.nl/api/v1/client/clickout/deals?deals_type=general&items_in_row=11&r_limit=0&rarity=0&rows_per_page=5&page=1", {jar: cookie, headers : this.headers  },function (error, response, body) {
-      const test = JSON.parse(body)
-      console.log(test.items);
+  private async HiiperRequestAsync(hiperUri: string) {
+    const cookie = await this.SetupSessionAsync();
+    return new Promise((resolve, reject): void => {
+      req.get(hiperUri, { jar: cookie, headers: this.headers }, function (error, response, body) {
+        const result = JSON.parse(body)
+        resolve(result.items);
+      });
     });
+  };
+
+  public async RequestProducts() {
+    const products = []
+    let pageSize = 1;
+    let productUri = `https://api.hiiper.nl/api/v1/client/clickout/deals?deals_type=general&items_in_row=11&r_limit=0&rarity=0&rows_per_page=5&page=${pageSize}`
+    let retrievedProducts: any = await this.HiiperRequestAsync(productUri);
+    products.push(retrievedProducts);
+    pageSize++;
+    console.log(pageSize)
+    // Increase page while there is data
+    while (retrievedProducts.length > 0) {
+      productUri = `https://api.hiiper.nl/api/v1/client/clickout/deals?deals_type=general&items_in_row=11&r_limit=0&rarity=0&rows_per_page=5&page=${pageSize}`
+      console.log(productUri);
+      retrievedProducts = await this.HiiperRequest(productUri);
+      products.push(retrievedProducts);
+      pageSize++;
+    }
+    return products;
   }
 
 }

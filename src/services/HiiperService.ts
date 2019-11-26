@@ -1,6 +1,7 @@
 const req = require("request");
 import config from "../config/config";
 import { Length } from 'class-validator';
+import { ReplSet } from "typeorm";
 
 class HiiperService {
   private email: string;
@@ -17,7 +18,7 @@ class HiiperService {
 
   private SetupSessionAsync(): any {
     //This will store the cookie
-    const cookie = req.jar();
+    const cookie: object = req.jar();
     return new Promise((resolve, reject): void => {
       req.post(
         this.authenticationUri,
@@ -45,35 +46,41 @@ class HiiperService {
   }
 
   private async HiiperRequestAsync(hiperUri: string) {
-    const cookie = await this.SetupSessionAsync();
+    const cookie: object = await this.SetupSessionAsync();
     return new Promise((resolve, reject): void => {
-      req.get(hiperUri, { jar: cookie, headers: this.headers }, function (error, response, body) {
-        const result = JSON.parse(body)
-        resolve(result.items);
+      req.get(hiperUri, { jar: cookie, headers: this.headers }, function (error, response, body): void {
+        if (!error && response.statusCode == 200) {
+          const result: any = JSON.parse(body)
+          resolve(result.items);
+        }
+        else {
+          console.log(error);
+          reject("Error executing HiiperRequestAsync")
+        }
       });
     });
   };
 
-  public async RequestProducts() {
+  public async RequestProductsAsync() {
     const products = []
-    let pageSize = 1;
-    let productUri = `https://api.hiiper.nl/api/v1/client/clickout/deals?deals_type=general&items_in_row=11&r_limit=0&rarity=0&rows_per_page=5&page=${pageSize}`
+    let pageSize: number = 1;
+    let productUri: string = `https://api.hiiper.nl/api/v1/client/clickout/deals?deals_type=general&items_in_row=11&r_limit=0&rarity=0&rows_per_page=5&page=${pageSize}`
     let retrievedProducts: any = await this.HiiperRequestAsync(productUri);
     products.push(retrievedProducts);
     pageSize++;
-    console.log(pageSize)
     // Increase page while there is data
     while (retrievedProducts.length > 0) {
       productUri = `https://api.hiiper.nl/api/v1/client/clickout/deals?deals_type=general&items_in_row=11&r_limit=0&rarity=0&rows_per_page=5&page=${pageSize}`
-      console.log(productUri);
-      retrievedProducts = await this.HiiperRequest(productUri);
+      retrievedProducts = await this.HiiperRequestAsync(productUri);
+      console.log(`Succesfully retrieved data from ${productUri}`);
       products.push(retrievedProducts);
       pageSize++;
-    }
+    };
     return products;
-  }
-
-}
+  };
+};
 
 const hiiperService = new HiiperService();
-hiiperService.RequestProducts();
+hiiperService.RequestProductsAsync().then(function (value) {
+  console.log(value);
+});

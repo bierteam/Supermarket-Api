@@ -1,3 +1,5 @@
 export default {
-  jwtSecret: ""
+  jwtSecret: "",
+  hiiperEmail: "",
+  hiiperPassword: ""
 };

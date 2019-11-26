@@ -1,7 +1,6 @@
 const req = require("request");
 import config from "../config/config";
-import { Length } from 'class-validator';
-import { ReplSet } from "typeorm";
+
 
 class HiiperService {
   private email: string;
@@ -73,7 +72,9 @@ class HiiperService {
       productUri = `https://api.hiiper.nl/api/v1/client/clickout/deals?deals_type=general&items_in_row=11&r_limit=0&rarity=0&rows_per_page=5&page=${pageSize}`
       retrievedProducts = await this.HiiperRequestAsync(productUri);
       console.log(`Succesfully retrieved data from ${productUri}`);
-      products.push(retrievedProducts);
+      if(retrievedProducts.length > 0) {
+        products.push(retrievedProducts);
+      }
       pageSize++;
     };
     return products;

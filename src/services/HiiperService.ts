@@ -1,8 +1,9 @@
 const req = require("request");
 import config from "../config/config";
+import { getRepository } from "typeorm";
+import { Product } from "../entity/Product";
 
-
-class HiiperService {
+export class HiiperService {
   private email: string;
   private password: string;
   private headers: object;
@@ -73,7 +74,7 @@ class HiiperService {
       retrievedProducts = await this.HiiperRequestAsync(productUri);
       console.log(`Succesfully retrieved data from ${productUri}`);
       if(retrievedProducts.length > 0) {
-        products.push(retrievedProducts);
+        products.push(retrievedProducts[0]);
       }
       pageSize++;
     };
@@ -81,7 +82,10 @@ class HiiperService {
   };
 };
 
-const hiiperService = new HiiperService();
-hiiperService.RequestProductsAsync().then(function (value) {
-  console.log(value);
-});
+// const productRepository = getRepository(Product);
+
+// const hiiperService = new HiiperService();
+// hiiperService.RequestProductsAsync().then(function (value) {
+//   //console.log(value);
+//   productRepository.save(value);
+// });

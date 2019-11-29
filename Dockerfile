@@ -1,4 +1,4 @@
-FROM node:10.13.0-alpine
+FROM node:10.17.0-alpine
 
 # Env
 ENV ENV_NAME dev

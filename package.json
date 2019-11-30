@@ -17,6 +17,7 @@
    "scripts": {
       "build": "tsc",
       "start": "set debug=* && ts-node-dev --respawn --transpileOnly ./src/index.ts",
+      "docker-build": "docker build . -t supermarket",
       "migration:run": "ts-node ./node_modules/typeorm/cli.js migration:run"
    },
    "dependencies": {

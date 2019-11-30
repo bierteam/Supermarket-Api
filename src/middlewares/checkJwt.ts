@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from "express";
 import * as jwt from "jsonwebtoken";
-import config from "../config/config";
 
 export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
   //Get the jwt token from the head
@@ -14,7 +13,7 @@ export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
       res.status(401).send();
       return;
     } else {
-      jwtPayload = <any>jwt.verify(token, config.jwtSecret);
+      jwtPayload = <any>jwt.verify(token, process.env.JWTSECRET);
       res.locals.jwtPayload = jwtPayload;
     }
   } catch (error) {
@@ -27,7 +26,7 @@ export const checkJwt = (req: Request, res: Response, next: NextFunction) => {
   //The token is valid for 1 hour
   //We want to send a new token on every request
   const { userId, username } = jwtPayload;
-  const newToken = jwt.sign({ userId, username }, config.jwtSecret, {
+  const newToken = jwt.sign({ userId, username }, process.env.JWTSECRET, {
     expiresIn: "1h"
   });
   res.setHeader("token", newToken);

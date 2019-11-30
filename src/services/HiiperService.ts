@@ -1,5 +1,4 @@
 const req = require("request");
-import config from "../config/config";
 import { getRepository } from "typeorm";
 import { Product } from "../entity/Product";
 
@@ -10,14 +9,14 @@ export class HiiperService {
   private authenticationUri: string;
 
   constructor() {
-    this.email = config.hiiperEmail;
-    this.password = config.hiiperPassword;
+    this.email = process.env.HIIPERUSER;
+    this.password = process.env.HIIPERPASSWORD;
     this.headers = { "Accept": "application/json, text/plain, */*", "Origin": "https://www.hiiper.nl", "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/78.0.3904.97 Safari/537.36", "Sec-Fetch-Site": "same-site", "Sec-Fetch-Mode": "cors", "Referer": "https://www.hiiper.nl/login/", "Accept-Encoding": "gzip, deflate, br", "Accept-Language": "nl-NL,nl;q=0.9,en-US;q=0.8,en;q=0.7" };
     this.authenticationUri = "https://api.hiiper.nl/authenticate"
   }
 
   private SetupSessionAsync(): any {
-    //This will store the cookie
+    // This will store the cookie
     const cookie: object = req.jar();
     return new Promise((resolve, reject): void => {
       req.post(

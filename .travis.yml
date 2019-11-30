@@ -15,8 +15,8 @@ cache: npm
 # Default install and script stage:
 # https://docs.travis-ci.com/user/languages/javascript-with-nodejs/
 
-after_script:
-  - npm run coverage
+# after_script:
+#   - npm run coverage
 after_success:
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
   - docker build -t bierteam/supermarket:$TRAVIS_BRANCH .

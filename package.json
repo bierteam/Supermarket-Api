@@ -1,11 +1,24 @@
 {
-   "name": "jwt-express-typeorm",
-   "version": "0.0.1",
-   "description": "Awesome project developed with TypeORM.",
-   "devDependencies": {
-      "@types/node": "^8.10.59",
-      "ts-node": "^3.3.0",
-      "typescript": "3.3.3333"
+   "description": "API to get products",
+   "repository": {
+      "type": "git",
+      "url": "git+https://github.com/bierteam/Supermarket-Api.git"
+   },
+   "homepage": "https://github.com/bierteam/Supermarket-Api/README.md",
+   "contibutors": [
+      "Nino van der Laan (https://github.com/NvdLaan)",
+      "Oscar Wieman (https://github.com/oscrx)"
+   ],
+   "license": "MIT",
+   "bugs": {
+      "url": "https://github.com/bierteam/Supermarket-Api/issues"
+   },
+   "main": "build/index.js",
+   "scripts": {
+      "tsc": "tsc",
+      "start": "set debug=* && ts-node-dev --respawn --transpileOnly ./src/index.ts",
+      "prod": "tsc && node ./build/app.js",
+      "migration:run": "ts-node ./node_modules/typeorm/cli.js migration:run"
    },
    "dependencies": {
       "@types/bcryptjs": "^2.4.2",
@@ -26,10 +39,9 @@
       "ts-node-dev": "^1.0.0-pre.44",
       "typeorm": "0.2.18"
    },
-   "scripts": {
-      "tsc": "tsc",
-      "start": "set debug=* && ts-node-dev --respawn --transpileOnly ./src/index.ts",
-      "prod": "tsc && node ./build/app.js",
-      "migration:run": "ts-node ./node_modules/typeorm/cli.js migration:run"
+   "devDependencies": {
+      "@types/node": "^8.10.59",
+      "ts-node": "^3.3.0",
+      "typescript": "3.3.3333"
    }
 }

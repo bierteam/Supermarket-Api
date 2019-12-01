@@ -2,9 +2,6 @@ import {
   Entity,
   PrimaryGeneratedColumn,
   Column,
-  Unique,
-  CreateDateColumn,
-  UpdateDateColumn
 } from "typeorm";
 import { Length, IsNotEmpty } from "class-validator";
 

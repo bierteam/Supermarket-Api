@@ -1,6 +1,7 @@
 const req = require("request");
 import { getRepository } from "typeorm";
 import { Product } from "../entity/Product";
+let cookie : object;
 
 export class HiiperService {
   private email: string;
@@ -33,10 +34,11 @@ export class HiiperService {
         },
         function (error, response): void {
           if (!error && response.statusCode == 200) {
+            console.log("Succesfully setup hiiper session")
             resolve(cookie)
           }
           else {
-            console.log(error);
+            console.log(response.statusCode);
             reject("Error setting up Hiiper Session")
           }
         }
@@ -44,16 +46,18 @@ export class HiiperService {
     });
   }
 
-  private async HiiperRequestAsync(hiperUri: string) {
-    const cookie: object = await this.SetupSessionAsync();
+  private async HiiperRequestAsync(hiiperUri: string) {
+    if(!cookie){
+      cookie = await this.SetupSessionAsync();
+    }
     return new Promise((resolve, reject): void => {
-      req.get(hiperUri, { jar: cookie, headers: this.headers }, function (error, response, body): void {
+      req.get(hiiperUri, { jar: cookie, headers: this.headers }, function (error, response, body): void {
         if (!error && response.statusCode == 200) {
-          const result: any = JSON.parse(body)
+          const result: any = JSON.parse(body);
           resolve(result.items);
         }
         else {
-          console.log(error);
+          console.log(response);
           reject("Error executing HiiperRequestAsync")
         }
       });
@@ -65,26 +69,18 @@ export class HiiperService {
     let pageSize: number = 1;
     let productUri: string = `https://api.hiiper.nl/api/v1/client/clickout/deals?deals_type=general&items_in_row=11&r_limit=0&rarity=0&rows_per_page=5&page=${pageSize}`
     let retrievedProducts: any = await this.HiiperRequestAsync(productUri);
-    products.push(retrievedProducts);
+
+    // .push.apply makes sure the structure will be [object,object] instead of [[object,object], [object,object]]
+    products.push.apply(products, retrievedProducts);
     pageSize++;
     // Increase page while there is data
     while (retrievedProducts.length > 0) {
       productUri = `https://api.hiiper.nl/api/v1/client/clickout/deals?deals_type=general&items_in_row=11&r_limit=0&rarity=0&rows_per_page=5&page=${pageSize}`
       retrievedProducts = await this.HiiperRequestAsync(productUri);
       console.log(`Succesfully retrieved data from ${productUri}`);
-      if(retrievedProducts.length > 0) {
-        products.push(retrievedProducts[0]);
-      }
+      products.push.apply(products, retrievedProducts);
       pageSize++;
     };
     return products;
   };
 };
-
-// const productRepository = getRepository(Product);
-
-// const hiiperService = new HiiperService();
-// hiiperService.RequestProductsAsync().then(function (value) {
-//   //console.log(value);
-//   productRepository.save(value);
-// });
